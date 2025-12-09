@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Todo App</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="d-flex justify-content-center align-items-center"
+        style="min-height: 100vh; display: flex; align-items: center; justify-content: center;">
+
+        <div class="glass-panel animate-fade-in" style="width: 100%; max-width: 400px; padding: 40px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="margin-bottom: 10px;">Welcome Back</h2>
+                <p>Please enter your details to sign in.</p>
+            </div>
+
+            <form id="loginForm">
+                <div style="margin-bottom: 20px;">
+                    <label for="email" class="form-label">Email</label>
+                    <input id="email" type="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+
+                <div style="margin-bottom: 20px; position: relative;">
+                    <label for="password" class="form-label">Password</label>
+                    <input id="password" type="password" class="form-control" placeholder="Create a password" required>
+
+                    <span id="togglePassword"
+                        style="position: absolute; right: 10px; top: 40px; cursor: pointer; color: #666;">
+                        <img class="icon-fade" src="./icon/hide.png" alt="hide.png"
+                            style="width: 20px; height: 20px; cursor: pointer;">
+
+                    </span>
+                </div>
+
+                <button class="btn-primary" style="width: 100%; margin-bottom: 20px;" type="submit">Sign In</button>
+
+                <p style="text-align: center;">Do not have an account?
+                    <a href="register.html">Sign up</a>
+                </p>
+                <hr>
+                <div style="text-align: center">
+                    <small>Use the default login, or personalize your experience by signing up for your own
+                        account.</small>
+                    <br>
+                    <small>email: demo@gmail.com</small>
+                    <small>password: demo123</small>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { authService } from './js/services/auth.service.js';
+
+        // Redirect if already logged in
+        authService.ensureGuest();
+
+        document.getElementById("togglePassword").addEventListener("click", () => {
+            const passwordField = document.getElementById("password");
+            const icon = document.querySelector("#togglePassword img");
+
+            const isHidden = passwordField.type === "password";
+
+            // Fade out icon
+            icon.style.opacity = 0;
+
+            setTimeout(() => {
+                // Toggle input type
+                passwordField.type = isHidden ? "text" : "password";
+
+                // Update icon image
+                icon.src = isHidden ? "./icon/show.png" : "./icon/hide.png";
+                icon.alt = isHidden ? "show.png" : "hide.png";
+
+                // Fade back in
+                icon.style.opacity = 1;
+            }, 150); // same as CSS transition
+        });
+
+        const form = document.getElementById("loginForm");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Signing In...';
+            btn.disabled = true;
+
+            const email = form.email.value.trim();
+            const password = form.password.value;
+
+            try {
+                await authService.login(email, password);
+                window.location.href = "index.html";
+            } catch (err) {
+                alert(err.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+
+</html>

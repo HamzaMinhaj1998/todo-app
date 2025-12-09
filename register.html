@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Todo App</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+
+        <div class="glass-panel animate-fade-in" style="width: 100%; max-width: 450px; padding: 40px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="margin-bottom: 10px;">Create Account</h2>
+                <p>Join us to manage your tasks efficiently.</p>
+            </div>
+
+            <form id="registerForm">
+                <div style="margin-bottom: 20px;">
+                    <label for="username" class="form-label">Username</label>
+                    <input id="username" class="form-control" placeholder="Enter your username" required>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="email" class="form-label">Email</label>
+                    <input id="email" type="email" class="form-control" placeholder="Enter your email" required>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input id="phone" type="tel" class="form-control" placeholder="Enter your phone" required>
+                </div>
+
+                <div style="margin-bottom: 20px; position: relative;">
+                    <label for="password" class="form-label">Password</label>
+                    <input id="password" type="password" class="form-control" placeholder="Create a password" required>
+
+                    <span id="togglePassword"
+                        style="position: absolute; right: 10px; top: 40px; cursor: pointer; color: #666;">
+                        <img class="icon-fade" src="./icon/hide.png" alt="hide.png"
+                            style="width: 20px; height: 20px; cursor: pointer;">
+
+                    </span>
+                </div>
+
+                <div style="margin-bottom: 30px; display: flex; gap: 20px; color: var(--text-muted);">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="gender" value="male" required> Male
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="gender" value="female" required> Female
+                    </label>
+                </div>
+
+                <button class="btn-primary" style="width: 100%; margin-bottom: 20px;" type="submit">Register</button>
+
+                <p style="text-align: center;">Already have an account?
+                    <a href="login.html">Sign in</a>
+                </p>
+            </form>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { authService } from './js/services/auth.service.js';
+
+        authService.ensureGuest();
+
+        document.getElementById("togglePassword").addEventListener("click", () => {
+            const passwordField = document.getElementById("password");
+            const icon = document.querySelector("#togglePassword img");
+
+            const isHidden = passwordField.type === "password";
+
+            // Fade out icon
+            icon.style.opacity = 0;
+
+            setTimeout(() => {
+                // Toggle input type
+                passwordField.type = isHidden ? "text" : "password";
+
+                // Update icon image
+                icon.src = isHidden ? "./icon/show.png" : "./icon/hide.png";
+                icon.alt = isHidden ? "show.png" : "hide.png";
+
+                // Fade back in
+                icon.style.opacity = 1;
+            }, 150); // same as CSS transition
+        });
+
+
+        const form = document.getElementById("registerForm");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Creating Account...';
+            btn.disabled = true;
+
+            const data = {
+                username: form.username.value.trim(),
+                email: form.email.value.trim(),
+                phone: form.phone.value.trim(),
+                password: form.password.value, // In real app, hash this!
+                gender: form.gender.value,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                await authService.register(data);
+                alert("Registration successful! Please login.");
+                location.href = "login.html";
+            } catch (err) {
+                alert(err.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
